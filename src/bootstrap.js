@@ -1,121 +1,128 @@
-"use strict";
-
-/* global  __SCRIPT_URI_SPEC__, Components, Log  */
-/* eslint no-unused-vars: ["error", { "varsIgnorePattern": "(startup|shutdown|install|uninstall)" }] */
-
 const { utils: Cu } = Components;
+Cu.import("resource://gre/modules/Services.jsm");
+Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 
-Cu.import('resource://gre/modules/AddonManager.jsm');
-Cu.import('resource://gre/modules/Console.jsm');
-Cu.import('resource://gre/modules/Log.jsm');
-const { TelemetryEnvironment } = Cu.import('resource://gre/modules/TelemetryEnvironment.jsm', null);
+const { TelemetryController } = Cu.import("resource://gre/modules/TelemetryController.jsm", null);
 
-const APP_STARTUP = 1;
-const APP_SHUTDOWN = 2;
-const ADDON_ENABLE = 3;
-const ADDON_DISABLE = 4;
-const ADDON_INSTALL = 5;
-const ADDON_UNINSTALL = 6;
-const ADDON_UPGRADE = 7;
-const ADDON_DOWNGRADE = 8;
+XPCOMUtils.defineLazyModuleGetter(this, "studyUtils",
+  "resource://pioneer-study-nothing/StudyUtils.jsm");
+XPCOMUtils.defineLazyModuleGetter(this, "config",
+  "resource://pioneer-study-nothing/Config.jsm");
+XPCOMUtils.defineLazyModuleGetter(this, "config",
+  "resource://pioneer-study-nothing/jose.jsm");
 
 const REASONS = {
-  [APP_STARTUP]: 'APP_STARTUP',
-  [APP_SHUTDOWN]: 'APP_SHUTDOWN',
-  [ADDON_ENABLE]: 'ADDON_ENABLE',
-  [ADDON_DISABLE]: 'ADDON_DISABLE',
-  [ADDON_INSTALL]: 'ADDON_INSTALL',
-  [ADDON_UNINSTALL]: 'ADDON_UNINSTALL',
-  [ADDON_UPGRADE]: 'ADDON_UPGRADE',
-  [ADDON_DOWNGRADE]: 'ADDON_DOWNGRADE',
+  APP_STARTUP:      1, // The application is starting up.
+  APP_SHUTDOWN:     2, // The application is shutting down.
+  ADDON_ENABLE:     3, // The add-on is being enabled.
+  ADDON_DISABLE:    4, // The add-on is being disabled. (Also sent during uninstallation)
+  ADDON_INSTALL:    5, // The add-on is being installed.
+  ADDON_UNINSTALL:  6, // The add-on is being uninstalled.
+  ADDON_UPGRADE:    7, // The add-on is being upgraded.
+  ADDON_DOWNGRADE:  8, // The add-on is being downgraded.
+};
+const PING_SENT_PREF = "extensions.pioneer-study-nothing.pingSent";
+const EXPIRATION_DATE_STRING_PREF = "extensions.pioneer-study-nothing.expirationDateString";
+
+
+const ENCRYPTION_KEY_ID = "pioneer-20170905";
+const PK = {
+  "e": "AQAB",
+  "kty": "RSA",
+  "n": "3nI-DQ7NoUZCvT348Vi4JfGC1h6R3Qf_yXR0dKM5DmwsuQMxguce6sZ28GWQHJjgbdcs8nTuNQihyVtr9vLsoKUVSmPs_a3QEGXEhTpuTtm7cCb_7HyAlwGtysn2AsdElG8HsDFWlZmiDaHTrTmdLnuk-Z3GRg4nnA4xs4vvUuh0fCVIKoSMFyt3Tkc6IBWJ9X3XrDEbSPrghXV7Cu8LMK3Y4avy6rjEGjWXL-WqIPhiYJcBiFnCcqUCMPvdW7Fs9B36asc_2EQAM5d7BAiBwMjoosSyU6b4JGpI530c3xhqLbX00q1ePCG732cIwp0-bGWV_q0FpQX2M9cNv2Ax4Q"
 };
 
-const CONFIG_PATH = `${__SCRIPT_URI_SPEC__}/../Config.jsm`;
-const { config } = Cu.import(CONFIG_PATH, {});
 
-const studyConfig = config.study;
-
-const log = Log.repository.getLogger(studyConfig.studyName);
-log.addAppender(new Log.ConsoleAppender(new Log.BasicFormatter()));
-log.level = Log.Level[config.log.bootstrap.level] || Log.Level.Debug;
-
-const STUDY_UTILS_PATH = `${__SCRIPT_URI_SPEC__}/../${studyConfig.studyUtilsPath}`;
-const { studyUtils } = Cu.import(STUDY_UTILS_PATH, {});
-
-const JOSE_PATH = `${__SCRIPT_URI_SPEC__}/../${studyConfig.josePath}`;
-const { Jose } = Cu.import(JOSE_PATH, {});
+async function encryptData(data) {
+  const rsa_key = Jose.Utils.importRsaPublicKey(PK, "RSA-OAEP");
+  const cryptographer = new Jose.WebCryptographer();
+  const encrypter = new JoseJWE.Encrypter(cryptographer, rsa_key);
+  return await encrypter.encrypt(JSON.stringify(data));
+}
 
 
-async function startup(addonData, reason) {
-  console.log(Jose);
-  // addonData: Array [ "id", "version", "installPath", "resourceURI", "instanceID", "webExtension" ]  bootstrap.js:48
-  log.debug("startup", REASONS[reason] || reason);
-  studyUtils.setup({
-    studyName: studyConfig.studyName,
-    endings: studyConfig.endings,
-    addon: {id: addonData.id, version: addonData.version},
-    telemetry: studyConfig.telemetry,
+function pingTelemetry() {
+  const data = JSON.stringify({
+    nothingData: `${Date.now()}`,
   });
-  studyUtils.setLoggingLevel(config.log.studyUtils.level);
 
-  Jsm.import(config.modules);
+  const payload = {
+    encryptedData: encryptData(data),
+    encryptionKeyId: ENCRYPTION_KEY_ID,
+    pioneerId: "d49379ee-db62-4b45-a501-9257208c1725",
+    studyName: config.studyName,
+    studyVersion: config.studyVersion,
+  };
 
-  if (reason === ADDON_INSTALL) {
-    studyUtils.firstSeen();  // sends telemetry "enter"
+  const telOptions = {addClientId: true, addEnvironment: true};
+
+  return TelemetryController.submitExternalPing("pioneer-study", payload, telOptions);
+}
+
+
+this.install = function() {};
+
+
+this.startup = async function(data, reason) {
+  studyUtils.setup({
+    ...config,
+    addon: {
+      id: data.id,
+      version: data.version
+    },
+  });
+
+  // Always set EXPIRATION_DATE_PREF if it not set, even if outside of install.
+  // This is a failsafe if opt-out expiration doesn't work, so should be resilient.
+  // Also helps for testing.
+  if (!Services.prefs.prefHasUserValue(EXPIRATION_DATE_STRING_PREF)) {
+    const now = new Date(Date.now());
+    const expirationDateString = new Date(now.setDate(now.getDate() + 3)).toISOString();
+    Services.prefs.setCharPref(EXPIRATION_DATE_STRING_PREF, expirationDateString);
+  }
+
+  if (reason === REASONS.ADDON_INSTALL) {
+    studyUtils.firstSeen(); // sends telemetry "enter"
     const eligible = await config.isEligible(); // addon-specific
     if (!eligible) {
       // uses config.endings.ineligible.url if any,
       // sends UT for "ineligible"
       // then uninstalls addon
-      await studyUtils.endStudy({reason: "ineligible"});
+      await studyUtils.endStudy({ reason: "ineligible" });
       return;
     }
   }
-  await studyUtils.startup({reason});
-}
+  // sets experiment as active and sends installed telemetry upon first install
+  await studyUtils.startup({ reason });
+
+  const expirationDate = new Date(Services.prefs.getCharPref(EXPIRATION_DATE_STRING_PREF));
+  if (Date.now() > expirationDate) {
+    studyUtils.endStudy({ reason: "expired" });
+  }
+
+  if (!Services.prefs.getBoolPref(PING_SENT_PREF, false)) {
+    pingTelemetry();
+    Services.prefs.setBoolPref(PING_SENT_PREF, true);
+  }
+};
 
 
-function shutdown(addonData, reason) {
-  console.log("shutdown", REASONS[reason] || reason);
-  console.log("JSMs unloading");
-  Cu.unload('resource://gre/modules/Console.jsm');
-  Cu.unload('resource://gre/modules/AddonManager.jsm');
-  Cu.unload('resource://gre/modules/TelemetryEnvironment.jsm');
-  Jsm.unload(config.modules);
-  Jsm.unload([CONFIG_PATH, STUDY_UTILS_PATH, JOSE_PATH]);
-}
+this.shutdown = async function(data, reason) {
+  const isUninstall = reason === REASONS.ADDON_UNINSTALL || reason === REASONS.ADDON_DISABLE;
+  if (isUninstall) {
+    // Send this before the ShuttingDown event to ensure that message handlers
+    // are still registered and receive it.
+    Services.mm.broadcastAsyncMessage("Pioneer:Uninstalling");
 
-
-function uninstall(addonData, reason) {
-  console.log("uninstall", REASONS[reason] || reason);
-}
-
-
-function install(addonData, reason) {
-  console.log("install", REASONS[reason] || reason);
-}
-
-
-async function removeAddon(addonData){
-  console.log(`Uninstalling: ${addonData.id}`);
-  await new Promise(function(resolve, reject){
-    AddonManager.getAddonByID(addonData.id, addon => resolve(addon.uninstall()));
-  });
-}
-
-
-// jsm loader / unloader
-class Jsm {
-  static import(modulesArray) {
-    for (const module of modulesArray) {
-      log.debug(`Loading ${module}`);
-      Cu.import(module);
+    if (!studyUtils._isEnding) {
+      // we are the first requestors, must be user action.
+      await studyUtils.endStudy({ reason: "user-disable" });
     }
   }
-  static unload(modulesArray) {
-    for (const module of modulesArray) {
-      log.debug(`Unloading ${module}`);
-      Cu.unload(module);
-    }
-  }
-}
+
+  Cu.unload("resource://pioneer-enrollment-study/StudyUtils.jsm");
+  Cu.unload("resource://pioneer-enrollment-study/Config.jsm");
+};
+
+
+this.uninstall = function() {};
