@@ -4,12 +4,12 @@ Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 
 const { TelemetryController } = Cu.import("resource://gre/modules/TelemetryController.jsm", null);
 
-XPCOMUtils.defineLazyModuleGetter(this, "studyUtils",
-  "resource://pioneer-study-nothing/StudyUtils.jsm");
 XPCOMUtils.defineLazyModuleGetter(this, "config",
   "resource://pioneer-study-nothing/Config.jsm");
-XPCOMUtils.defineLazyModuleGetter(this, "config",
-  "resource://pioneer-study-nothing/jose.jsm");
+XPCOMUtils.defineLazyModuleGetter(this, "studyUtils",
+  "resource://pioneer-study-nothing/StudyUtils.jsm");
+XPCOMUtils.defineLazyModuleGetter(this, "Jose",
+  "resource://pioneer-study-nothing/Jose.jsm");
 
 const REASONS = {
   APP_STARTUP:      1, // The application is starting up.
@@ -34,6 +34,7 @@ const PK = {
 
 
 async function encryptData(data) {
+  console.log(Jose);
   const rsa_key = Jose.Utils.importRsaPublicKey(PK, "RSA-OAEP");
   const cryptographer = new Jose.WebCryptographer();
   const encrypter = new JoseJWE.Encrypter(cryptographer, rsa_key);
@@ -71,6 +72,8 @@ this.startup = async function(data, reason) {
       version: data.version
     },
   });
+  const variation = config.study.weightedVariations[0];
+  studyUtils.setVariation(variation);
 
   // Always set EXPIRATION_DATE_PREF if it not set, even if outside of install.
   // This is a failsafe if opt-out expiration doesn't work, so should be resilient.
@@ -120,8 +123,10 @@ this.shutdown = async function(data, reason) {
     }
   }
 
-  Cu.unload("resource://pioneer-enrollment-study/StudyUtils.jsm");
-  Cu.unload("resource://pioneer-enrollment-study/Config.jsm");
+  Cu.unload("resource://pioneer-study-nothing/StudyUtils.jsm");
+  Cu.unload("resource://pioneer-study-nothing/Config.jsm");
+  Cu.unload("resource://pioneer-study-nothing/Jose.jsm");
+  Services.prefs.setBoolPref(PING_SENT_PREF, false);
 };
 
 

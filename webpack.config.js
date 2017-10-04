@@ -1,12 +1,11 @@
 /* eslint-env node */
 var path = require("path");
 var ConcatSource = require("webpack-sources").ConcatSource;
-var LicenseWebpackPlugin = require("license-webpack-plugin");
 
 module.exports = {
   context: __dirname,
   entry: {
-    jose: "./node_modules/jose-jwe-jws/dist/jose.js",
+    Jose: "./node_modules/jose-jwe-jws/dist/jose.js",
   },
   output: {
     path: path.resolve(__dirname, "vendor/"),
@@ -24,13 +23,19 @@ module.exports = {
       this.plugin("emit", function(compilation, callback) {
         for (const libraryName in compilation.entrypoints) {
           const assetName = `${libraryName}.js`; // Matches output.filename
+
+          let exportedSymbols = `["${libraryName}"]`;
+          if (libraryName === 'Jose') {
+            exportedSymbols = '["Jose", "JoseJWE", "JoseJWS"]';
+          }
+
           compilation.assets[assetName] = new ConcatSource(
             "/* eslint-disable */", // Disable linting
             "const window = this;", // Shim for window
             "Components.utils.importGlobalProperties(['crypto']);", // Make crypto available
             "this.crypto = crypto;",
             compilation.assets[assetName],
-            `this.EXPORTED_SYMBOLS = ["${libraryName}"];` // Matches output.library
+            `this.EXPORTED_SYMBOLS = ${exportedSymbols};` // Matches output.library
           );
         }
         callback();

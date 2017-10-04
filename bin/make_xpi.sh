@@ -23,7 +23,7 @@ node_modules/.bin/webpack
 node_modules/.bin/mustache package.json templates/install.rdf.mustache > "${DEST}/install.rdf"
 node_modules/.bin/mustache package.json templates/chrome.manifest.mustache > "${DEST}/chrome.manifest"
 cp node_modules/shield-studies-addon-utils/dist/StudyUtils.jsm "${DEST}"
-cp vendor/jose.js "${DEST}/jose.jsm"
+cp vendor/Jose.js "${DEST}/Jose.jsm"
 
 cp -rp src/* "$DEST"
 
