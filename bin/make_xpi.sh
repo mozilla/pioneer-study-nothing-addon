@@ -20,7 +20,7 @@ trap cleanup EXIT
 node_modules/.bin/mustache package.json templates/install.rdf.mustache > "${DEST}/install.rdf"
 node_modules/.bin/mustache package.json templates/chrome.manifest.mustache > "${DEST}/chrome.manifest"
 cp node_modules/shield-studies-addon-utils/dist/StudyUtils.jsm "${DEST}"
-cp node_modules/jose-jwe-jws/dist/jose.min.js "${DEST}"
+cp vendor/jose.js "${DEST}/jose.jsm"
 
 cp -rp src/* "$DEST"
 
