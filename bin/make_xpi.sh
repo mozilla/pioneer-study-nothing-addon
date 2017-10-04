@@ -16,6 +16,9 @@ function cleanup {
 }
 trap cleanup EXIT
 
+# run webpack
+node_modules/.bin/webpack
+
 # fill templates, could be fancier
 node_modules/.bin/mustache package.json templates/install.rdf.mustache > "${DEST}/install.rdf"
 node_modules/.bin/mustache package.json templates/chrome.manifest.mustache > "${DEST}/chrome.manifest"
