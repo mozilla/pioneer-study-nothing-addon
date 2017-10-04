@@ -10,6 +10,8 @@ XPCOMUtils.defineLazyModuleGetter(this, "studyUtils",
   "resource://pioneer-study-nothing/StudyUtils.jsm");
 XPCOMUtils.defineLazyModuleGetter(this, "Jose",
   "resource://pioneer-study-nothing/Jose.jsm");
+XPCOMUtils.defineLazyModuleGetter(this, "JoseJWE",
+  "resource://pioneer-study-nothing/Jose.jsm");
 
 const REASONS = {
   APP_STARTUP:      1, // The application is starting up.
@@ -34,7 +36,6 @@ const PK = {
 
 
 async function encryptData(data) {
-  console.log(Jose);
   const rsa_key = Jose.Utils.importRsaPublicKey(PK, "RSA-OAEP");
   const cryptographer = new Jose.WebCryptographer();
   const encrypter = new JoseJWE.Encrypter(cryptographer, rsa_key);
@@ -42,13 +43,13 @@ async function encryptData(data) {
 }
 
 
-function pingTelemetry() {
+async function pingTelemetry() {
   const data = JSON.stringify({
     nothingData: `${Date.now()}`,
   });
 
   const payload = {
-    encryptedData: encryptData(data),
+    encryptedData: await encryptData(data),
     encryptionKeyId: ENCRYPTION_KEY_ID,
     pioneerId: config.pioneerId,
     studyName: config.studyName,
@@ -104,8 +105,9 @@ this.startup = async function(data, reason) {
   }
 
   if (!Services.prefs.getBoolPref(PING_SENT_PREF, false)) {
-    pingTelemetry();
-    Services.prefs.setBoolPref(PING_SENT_PREF, true);
+    pingTelemetry().then(function() {
+      Services.prefs.setBoolPref(PING_SENT_PREF, true);
+    });
   }
 };
 
@@ -126,7 +128,6 @@ this.shutdown = async function(data, reason) {
   Cu.unload("resource://pioneer-study-nothing/StudyUtils.jsm");
   Cu.unload("resource://pioneer-study-nothing/Config.jsm");
   Cu.unload("resource://pioneer-study-nothing/Jose.jsm");
-  Services.prefs.setBoolPref(PING_SENT_PREF, false);
 };
 
 

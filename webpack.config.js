@@ -10,8 +10,6 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, "vendor/"),
     filename: "[name].js",
-    library: "[name]",
-    libraryTarget: "this",
   },
   plugins: [
     /**
