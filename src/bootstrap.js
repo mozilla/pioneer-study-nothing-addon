@@ -49,7 +49,7 @@ function pingTelemetry() {
   const payload = {
     encryptedData: encryptData(data),
     encryptionKeyId: ENCRYPTION_KEY_ID,
-    pioneerId: "d49379ee-db62-4b45-a501-9257208c1725",
+    pioneerId: config.pioneerId,
     studyName: config.studyName,
     studyVersion: config.studyVersion,
   };

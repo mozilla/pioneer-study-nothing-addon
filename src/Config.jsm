@@ -10,6 +10,7 @@ const config = {
   study: {
     studyName: "pioneer-study-nothing", // no spaces, for all the reasons
     studyVersion: 1,
+    pioneerId: "d49379ee-db62-4b45-a501-9257208c1725",
     weightedVariations: [],
     /** **endings**
       * - keys indicate the 'endStudy' even that opens these.
