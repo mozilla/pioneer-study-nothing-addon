@@ -39,7 +39,7 @@ async function encryptData(data) {
   const rsa_key = Jose.Utils.importRsaPublicKey(PK, "RSA-OAEP");
   const cryptographer = new Jose.WebCryptographer();
   const encrypter = new JoseJWE.Encrypter(cryptographer, rsa_key);
-  return await encrypter.encrypt(JSON.stringify(data));
+  return await encrypter.encrypt(data);
 }
 
 
@@ -51,9 +51,9 @@ async function pingTelemetry() {
   const payload = {
     encryptedData: await encryptData(data),
     encryptionKeyId: ENCRYPTION_KEY_ID,
-    pioneerId: config.pioneerId,
-    studyName: config.studyName,
-    studyVersion: config.studyVersion,
+    pioneerId: config.study.pioneerId,
+    studyName: config.study.studyName,
+    studyVersion: config.study.studyVersion,
   };
 
   const telOptions = {addClientId: true, addEnvironment: true};
