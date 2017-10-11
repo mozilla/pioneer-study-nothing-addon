@@ -27,7 +27,10 @@ const PING_SENT_PREF = "extensions.pioneer-study-nothing.pingSent";
 const EXPIRATION_DATE_STRING_PREF = "extensions.pioneer-study-nothing.expirationDateString";
 
 
+// The encryption key ID from the server
 const ENCRYPTION_KEY_ID = "pioneer-20170905";
+
+// The public key used for encryption
 const PK = {
   "e": "AQAB",
   "kty": "RSA",
@@ -43,7 +46,7 @@ async function encryptData(data) {
 }
 
 
-async function pingTelemetry() {
+async function encryptedTelemetryPing() {
   const data = JSON.stringify({
     nothingData: `${Date.now()}`,
   });
@@ -105,7 +108,7 @@ this.startup = async function(data, reason) {
   }
 
   if (!Services.prefs.getBoolPref(PING_SENT_PREF, false)) {
-    pingTelemetry().then(function() {
+    encryptedTelemetryPing().then(function() {
       Services.prefs.setBoolPref(PING_SENT_PREF, true);
     });
   }
