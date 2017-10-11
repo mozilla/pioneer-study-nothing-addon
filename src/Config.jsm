@@ -8,9 +8,8 @@ const EXPORTED_SYMBOLS = ["config"];
 
 const config = {
   study: {
-    studyName: "nothing", // no spaces, for all the reasons
+    studyName: "pioneer-study-nothing", // no spaces, for all the reasons
     studyVersion: 1,
-    pioneerId: "d49379ee-db62-4b45-a501-9257208c1725",
     weightedVariations: [
       { name: "control", weight: 1 },
     ],
@@ -27,6 +26,10 @@ const config = {
       removeTestingFlag: true,  // Marks pings as testing, set true for actual release
       // TODO "onInvalid": "throw"  // invalid packet for schema?  throw||log
     },
+  },
+  pioneer: {
+    id: "d49379ee-db62-4b45-a501-9257208c1725",
+    studyName: "example",  // this name must match the pipeline schema to be used
   },
   async isEligible() {
     const addon = await AddonManager.getAddonByID("pioneer-opt-in@mozilla.org");

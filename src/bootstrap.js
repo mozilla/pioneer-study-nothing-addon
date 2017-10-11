@@ -48,14 +48,14 @@ async function encryptData(data) {
 
 async function encryptedTelemetryPing() {
   const data = JSON.stringify({
-    nothingData: `${Date.now()}`,
+    exampleString: `${Date.now()}`,
   });
 
   const payload = {
     encryptedData: await encryptData(data),
     encryptionKeyId: ENCRYPTION_KEY_ID,
-    pioneerId: config.study.pioneerId,
-    studyName: config.study.studyName,
+    pioneerId: config.pioneer.id,
+    studyName: config.pioneer.studyName,
     studyVersion: config.study.studyVersion,
   };
 
