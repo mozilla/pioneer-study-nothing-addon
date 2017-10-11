@@ -1,6 +1,6 @@
 {
   "name": "pioneer-study-nothing-addon",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Nothing burger study to test the Pioneer pipeline.",
   "scripts": {
     "build": "XPI=pioneer-study-nothing@mozilla.org.xpi bash ./bin/make_xpi.sh",
@@ -22,7 +22,7 @@
     "webpack": "3.6.0"
   },
   "addon": {
-    "version": "1.0.0",
+    "version": "1.0.1",
     "id": "pioneer-study-nothing@mozilla.org",
     "name": "Pioneer Nothing Study",
     "minVersion": "55.0",
