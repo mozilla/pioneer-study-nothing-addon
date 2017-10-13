@@ -3,16 +3,13 @@
   "version": "1.1.0",
   "description": "Nothing burger study to test the Pioneer pipeline.",
   "scripts": {
-    "build": "XPI=pioneer-study-nothing@mozilla.org.xpi bash ./bin/make_xpi.sh",
-    "lint": "eslint src --ext jsm --ext js --ext json --",
-    "watch": "onchange 'src/**' 'package.json' 'template/**' -e src/install.rdf -e src/StudyUtils.jsm -- npm run build -- '{{event}} {{changed}} $(date)'"
+    "build": "XPI=pioneer-study-nothing@mozilla.org.xpi bash ./bin/make_xpi.sh"
   },
   "keywords": [],
   "author": "Rehan Dalal <rdalal@mozilla.com>",
   "license": "MPL-2.0",
   "devDependencies": {
-    "mustache": "2.3.0",
-    "onchange": "3.2.1"
+    "mustache": "2.3.0"
   },
   "dependencies": {}
 }
