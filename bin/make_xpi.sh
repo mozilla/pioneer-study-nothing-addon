@@ -16,14 +16,10 @@ function cleanup {
 }
 trap cleanup EXIT
 
-# run webpack
-node_modules/.bin/webpack
-
 # fill templates, could be fancier
-node_modules/.bin/mustache package.json templates/install.rdf.mustache > "${DEST}/install.rdf"
-node_modules/.bin/mustache package.json templates/chrome.manifest.mustache > "${DEST}/chrome.manifest"
-cp node_modules/shield-studies-addon-utils/dist/StudyUtils.jsm "${DEST}"
-cp vendor/Jose.js "${DEST}/Jose.jsm"
+node_modules/.bin/mustache addon.json templates/install.rdf.mustache > "${DEST}/install.rdf"
+node_modules/.bin/mustache addon.json templates/chrome.manifest.mustache > "${DEST}/chrome.manifest"
+cp node_modules/pioneer-studies-addon-utils/dist/PioneerUtils.jsm "${DEST}"
 
 cp -rp src/* "$DEST"
 
