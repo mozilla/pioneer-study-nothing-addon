@@ -1,6 +1,6 @@
 {
   "name": "pioneer-study-nothing-addon",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Nothing burger study to test the Pioneer pipeline.",
   "scripts": {
     "build": "XPI=pioneer-study-nothing@mozilla.org.xpi bash ./bin/make_xpi.sh",
@@ -11,18 +11,11 @@
   "author": "Rehan Dalal <rdalal@mozilla.com>",
   "license": "MPL-2.0",
   "devDependencies": {
-    "eslint": "4.7.0",
-    "eslint-plugin-mozilla": "0.4.3",
-    "eslint-plugin-no-unsanitized": "2.0.1",
-    "jose-jwe-jws": "0.1.5",
-    "license-webpack-plugin": "1.1.0",
     "mustache": "2.3.0",
     "onchange": "3.2.1",
-    "shield-studies-addon-utils": "4.1.0",
-    "webpack": "3.6.0"
   },
   "addon": {
-    "version": "1.0.1",
+    "version": "1.1.0",
     "id": "pioneer-study-nothing@mozilla.org",
     "name": "Pioneer Nothing Study",
     "minVersion": "55.0",
