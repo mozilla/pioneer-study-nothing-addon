@@ -12,19 +12,7 @@
   "license": "MPL-2.0",
   "devDependencies": {
     "mustache": "2.3.0",
-    "onchange": "3.2.1",
-  },
-  "addon": {
-    "version": "1.1.0",
-    "id": "pioneer-study-nothing@mozilla.org",
-    "name": "Pioneer Nothing Study",
-    "minVersion": "55.0",
-    "maxVersion": "*",
-    "multiprocessCompatible": true,
-    "hasEmbeddedWebExtension": false,
-    "creator": "Rehan Dalal <rdalal@mozilla.com>",
-    "description": "Nothing burger study to test the Pioneer pipeline.",
-    "chrome": "pioneer-study-nothing"
+    "onchange": "3.2.1"
   },
   "dependencies": {}
 }
