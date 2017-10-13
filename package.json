@@ -9,7 +9,8 @@
   "author": "Rehan Dalal <rdalal@mozilla.com>",
   "license": "MPL-2.0",
   "devDependencies": {
-    "mustache": "2.3.0"
+    "mustache": "2.3.0",
+    "pioneer-studies-addon-utils": "1.0.0"
   },
   "dependencies": {}
 }
