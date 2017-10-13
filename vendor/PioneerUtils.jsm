@@ -91,9 +91,8 @@ const ENCRYPTION_KEY_ID = "pioneer-20170905";
 const PIONEER_ID_PREF = "extensions.pioneer.cachedClientID";
 
 // Make crypto available and make jose use it.
-Components.utils.importGlobalProperties(["crypto"]);
+Cu.importGlobalProperties(["crypto"]);
 Object(__WEBPACK_IMPORTED_MODULE_0_jose_jwe_jws_dist_jose_commonjs_js__["setCrypto"])(crypto);
-
 
 class PioneerUtils {
   constructor(config) {
