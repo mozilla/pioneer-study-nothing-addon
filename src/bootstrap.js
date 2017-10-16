@@ -54,7 +54,7 @@ this.startup = async function(data, reason) {
     uninstallAddon(data.id);
   }
 
-  if (!Services.prefs.getBoolPref(PING_SENT_PREF, false)) {
+  if (reason === REASONS.ADDON_INSTALL && !Services.prefs.getBoolPref(PING_SENT_PREF, false)) {
     const payload = {
       exampleString: `${Date.now()}`,
     };
