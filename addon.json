@@ -1,13 +1,13 @@
 {
   "addon": {
     "version": "1.2.0",
-    "id": "pioneer-study-nothing@mozilla.org",
+    "id": "nothing-study@pioneer.mozilla.org",
     "name": "Pioneer Nothing Study",
     "minVersion": "55.0",
     "maxVersion": "*",
     "multiprocessCompatible": true,
     "hasEmbeddedWebExtension": false,
-    "creator": "Rehan Dalal <rdalal@mozilla.com>",
+    "creator": "Mozilla",
     "description": "Nothing burger study to test the Pioneer pipeline.",
     "chrome": "pioneer-study-nothing"
   }
